@@ -39,7 +39,7 @@ export default function Home(props) {
     );
 }
 
-// Eta na use korle locales json pabena
+// Eta diyei public -> locales pacche
 export const getStaticProps = async ({ locale }) => {
     return {
         props: {
