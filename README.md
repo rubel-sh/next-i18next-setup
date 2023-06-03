@@ -1,38 +1,77 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+[next-i18next docs:](https://www.npmjs.com/package/next-i18next)
 
-First, run the development server:
+## Steps
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+### 1: Create next-i18next.config.js
+
+```js
+module.exports = {
+    i18n: {
+        defaultLocale: "en",
+        locales: ["en", "bn", "ar", "hi"],
+    },
+};
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2: Add exported i18 to next config
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+```js
+/** @type {import('next').NextConfig} */
+const { i18n } = require("./next-i18next.config");
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+const nextConfig = {
+    reactStrictMode: true,
+    i18n,
+};
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+module.exports = nextConfig;
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### 3: Wrap \_app with appWithTranslation HOC
 
-## Learn More
+```js
+export default appWithTranslation(MyApp);
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4: Create Locales in public -> locales -> en -> common.json
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 5: Using Translation to Components
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```js
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+export default function Home(props) {
+    const { t } = useTranslation("home");
+    <h1>{t("our_universe")}</h1>;
+}
+// Eta na use korle locales json pabena
+export const getStaticProps = async ({ locale }) => {
+    return {
+        props: {
+            ...(await serverSideTranslations(locale, ["home"])),
+            data: "ki hocche",
+        },
+    };
+};
+```
 
-## Deploy on Vercel
+### 6: Change Locale: it will change url with current locale
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```js
+// Using Link to change locale
+{
+    locales.map((loc) => (
+        <Link key={loc} href={"/"} locale={loc}>
+            <button>{loc}</button>
+        </Link>
+    ));
+}
+// Using useRouter {push} to change locale
+const handleClick = (e) => {
+    push("/", undefined, { locale: "ar" });
+};
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+<button onClick={handleClick}>PUSH ARABIC LANG</button>;
+```
