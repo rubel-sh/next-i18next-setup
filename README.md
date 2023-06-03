@@ -42,7 +42,7 @@ export default appWithTranslation(MyApp);
 ```js
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-export default function Home(props) {
+export default function Home() {
     const { t } = useTranslation("home");
     <h1>{t("our_universe")}</h1>;
 }
@@ -51,7 +51,6 @@ export const getStaticProps = async ({ locale }) => {
     return {
         props: {
             ...(await serverSideTranslations(locale, ["home"])),
-            data: "ki hocche",
         },
     };
 };
